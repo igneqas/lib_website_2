@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate report</title>
+</head>
+<body>
+<div style="position: relative; height: 1000px; background-color: rgb(96,96,96)">
+  <form style="position: absolute; top: 10px; left: 10px" action="/" method="get">
+    <input type="submit" value="Return to dashboard" name="Submit"
+           style="color: white; text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 6px darkBlue; font-size:17px;" />
+  </form>
+  <div style="margin-left: 20px">
+    <br><br><br><br><br><br>
+<!--    <form action="/generateReport" method="get" th:object="${reportDates}">-->
+      <table>
+        <tr>
+<!--          <td>-->
+<!--      <label for="fromDate" style="color: white">From:</label>-->
+<!--      <br>-->
+<!--      <input type="date" id="fromDate" th:value="${reportDates.fromDate}" th:field="*{fromDate}" required minlength="1">-->
+<!--      <br><br>-->
+<!--      <label for="toDate" style="color: white">To:</label>-->
+<!--      <br>-->
+<!--      <input type="date" id="toDate" th:value="${reportDates.toDate}" th:field="*{toDate}" required minlength="1">-->
+<!--      <br><br>-->
+<!--      <input type="submit" value="Generate" name="Submit"-->
+<!--             style="color: white; text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 6px darkBlue; font-size:17px;" />-->
+<!--          </td>-->
+          <td style="padding-left: 50px">
+            <div style="padding-bottom: 20px; font-size: 35px; color: white">Book orders</div>
+              <table style="color: white; border: solid 2px white; font-size: 25px; margin: 0 auto;">
+                <thead>
+                <tr>
+                  <th style="text-align:center; padding-left: 10px">Title</th>
+                  <th style="text-align:center; padding-left: 10px">Authors</th>
+                  <th style="text-align:center; padding-left: 10px">Cover</th>
+                  <th style="text-align:center; padding-left: 10px">Orders</th>
+<!--                  <th style="text-align:center; padding-left: 10px">Details</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="bookWithCount :${booksWithCount}">
+                  <td style="text-align:center; padding-left: 10px" th:text="${bookWithCount.book.title}">book title</td>
+                  <td style="text-align:center; padding-left: 10px" th:text="${bookWithCount.book.authorsList.size > 0} ? ${bookWithCount.book.authorsList[0].authorName} : 'no authors'">authors</td>
+                  <td style="text-align:center; padding-left: 10px"><img th:src="${bookWithCount.book.url}" width="40" height="50"/></td>
+                  <td style="text-align:center; padding-left: 10px" th:text="${bookWithCount.count}"></td>
+<!--                  <td style="text-align:center; padding-left: 10px"><a th:href="@{'/viewbook/' + ${bookWithCount.book.id}}"> View more</a></td>-->
+                </tr>
+                </tbody>
+                <tfoot>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                </tfoot>
+              </table>
+          </td>
+          <td style="padding-left: 175px; vertical-align: top">
+            <div style="padding-bottom: 20px; font-size: 35px; color: white">User activity</div>
+            <table style="color: white; border: solid 2px white; font-size: 25px; margin: 0 auto;">
+              <thead>
+              <tr>
+                <th style="text-align:center; padding-left: 10px">Username</th>
+                <th style="text-align:center; padding-left: 20px">Orders</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="userWithCount :${usersWithCount}">
+                <td style="text-align:center; padding-left: 10px" th:text="${userWithCount.user.userName}">username</td>
+                <td style="text-align:center; padding-left: 20px" th:text="${userWithCount.count}"></td>
+              </tr>
+              </tbody>
+              <tfoot>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              </tfoot>
+            </table>
+          </td>
+          <td style="padding-left: 250px; vertical-align: top">
+            <div style="padding-bottom: 20px; font-size: 35px; color: white">Average order duration:</div>
+            <div style="padding-bottom: 20px; font-size: 25px; color: white" th:text="${averageOrderDuration}"></div>
+            <div style="padding-bottom: 20px; padding-top: 75px; font-size: 35px; color: white">New orders:</div>
+            <div style="padding-bottom: 20px; font-size: 25px; color: white" th:text="${ordersStarted}"></div>
+            <div style="padding-bottom: 20px; padding-top: 75px; font-size: 35px; color: white">Finished orders:</div>
+            <div style="padding-bottom: 20px; font-size: 25px; color: white" th:text="${ordersFinished}"></div>
+          </td>
+        </tr>
+      </table>
+<!--    </form>-->
+  </div>
+</div>
+</body>
+</html>

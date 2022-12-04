@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order details</title>
+</head>
+<body>
+<div style="position: relative; height: 1000px; background-color: gray">
+    <div style="position: relative; text-align: center">
+        <h1 style="color: white; font-size: 90px"> LIBRARY </h1>
+    </div>
+    <div style="margin-left: 35%; margin-right: auto; padding: 10px">
+        <form method="POST" th:action="@{/editthisorder}" th:object="${editOrderForm}">
+            <label for="orderID" style="color: white">Id of order:</label>
+            <br>
+            <input type="text" id="orderID" th:value="${editOrderForm}" th:field="*{order.orderID}" readonly disabled>
+            <br><br>
+            <label for="user" style="color: white">Reader:</label>
+            <br>
+            <input type="text" id="user" th:value="${editOrderForm}" th:field="*{order.user.userFullName}" required minlength="1" disabled>
+            <br><br>
+            <label for="booksList" style="color: white">Books:</label>
+            <br>
+            <textarea id="booksList" th:name="booksList" required minlength="10" rows="5" cols="20" disabled th:field="*{books}"></textarea>
+            <br><br>
+            <label for="issueDate" style="color: white">Date of issue:</label>
+            <br>
+            <input type="date" id="issueDate" th:value="${editOrderForm.order.issueDate}" th:field="*{order.issueDate}" required minlength="1">
+            <br><br>
+            <label for="returnDate" style="color: white">Date of return:</label>
+            <br>
+            <input type="date" id="returnDate" th:value="${editOrderForm.order.returnDate}" th:field="*{order.returnDate}" required minlength="1">
+            <br><br>
+            <label for="orderInfo" style="color: white">Order status:</label>
+            <br>
+            <select id="orderInfo" th:name="orderInfo" th:value="${editOrderForm.order.orderInfo}">
+                <option>Reserved</option>
+                <option>In progress</option>
+                <option>Finished</option>
+            </select>
+            <br><br>
+            <input type="submit" value="Update order info">
+        </form>
+        <br><br>
+        <button onclick="window.location.href='/';">Return to dashboard</button>
+    </div>
+</div>
+<form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+    <input hidden type="submit" value="Sign Out"/>
+</form>
+</body>
+</html>
