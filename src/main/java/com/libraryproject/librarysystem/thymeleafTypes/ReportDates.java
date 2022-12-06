@@ -1,4 +1,4 @@
-package com.libraryproject.librarysystem.thymeleafHelpers;
+package com.libraryproject.librarysystem.thymeleafTypes;
 
 public class ReportDates {
 

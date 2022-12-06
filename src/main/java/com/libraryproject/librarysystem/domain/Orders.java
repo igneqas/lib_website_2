@@ -32,7 +32,7 @@ public class Orders {
         this.returnDate = returnDate;
     }
 
-    public Orders(Users user, List<Books> booksList, Date issueDate, OrderStatus orderInfo) {
+    public Orders(Users user, Date issueDate, List<Books> booksList, OrderStatus orderInfo) {
         this.user = user;
         this.booksList = booksList;
         this.issueDate = issueDate;
@@ -47,8 +47,6 @@ public class Orders {
         this.orderInfo = orderInfo;
     }
 
-
-
     public Orders(int orderID, Users user, List<Books> booksList, Date issueDate, Date returnDate, OrderStatus orderInfo) {
         this.orderID = orderID;
         this.user = user;
@@ -57,6 +55,8 @@ public class Orders {
         this.returnDate = returnDate;
         this.orderInfo = orderInfo;
     }
+
+
 
 
 

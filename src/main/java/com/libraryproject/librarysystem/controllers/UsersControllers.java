@@ -21,7 +21,6 @@ public class UsersControllers {
     @Autowired
     private UsersRepository usersRepository;
 
-
     @GetMapping("/signup")
     public String userSignup(Model model) {
         Users user = new Users();

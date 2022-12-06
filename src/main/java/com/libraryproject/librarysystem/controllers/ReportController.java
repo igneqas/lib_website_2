@@ -4,7 +4,7 @@ import com.libraryproject.librarysystem.domain.*;
 import com.libraryproject.librarysystem.repositories.BooksRepository;
 import com.libraryproject.librarysystem.repositories.OrdersRepository;
 import com.libraryproject.librarysystem.repositories.UsersRepository;
-import com.libraryproject.librarysystem.thymeleafHelpers.ReportDates;
+import com.libraryproject.librarysystem.thymeleafTypes.ReportDates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

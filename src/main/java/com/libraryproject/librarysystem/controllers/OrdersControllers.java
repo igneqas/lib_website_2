@@ -1,168 +1,103 @@
 package com.libraryproject.librarysystem.controllers;
 
 import com.libraryproject.librarysystem.domain.*;
-import com.libraryproject.librarysystem.repositories.BooksRepository;
+import com.libraryproject.librarysystem.repositories.repositoryWrappers.interfaces.IBooksRepositoryWrapper;
+import com.libraryproject.librarysystem.utilities.interfaces.IModelHelpers;
+import com.libraryproject.librarysystem.repositories.repositoryWrappers.interfaces.IOrdersRepositoryWrapper;
+import com.libraryproject.librarysystem.repositories.repositoryWrappers.interfaces.IUsersRepositoryWrapper;
 import com.libraryproject.librarysystem.repositories.OrdersRepository;
-import com.libraryproject.librarysystem.repositories.UsersRepository;
-import com.libraryproject.librarysystem.security.MyUserDetails;
-import com.libraryproject.librarysystem.thymeleafHelpers.EditOrderForm;
-import org.hibernate.criterion.Order;
+import com.libraryproject.librarysystem.thymeleafTypes.EditOrderForm;
+import com.libraryproject.librarysystem.utilities.interfaces.IUserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
 import javax.validation.Valid;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 @Controller
 public class OrdersControllers {
 
+    private final String booksListRedirect = "redirect:/orderslist";
+
     @Autowired
     private OrdersRepository ordersRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private IUsersRepositoryWrapper usersRepositoryWrapper;
 
     @Autowired
-    private BooksRepository booksRepository;
+    private IModelHelpers modelHelpers;
 
-    @RequestMapping("/orderslist")
-    public String allOrders(Model model) {
-        List<Orders> orders;
+    @Autowired
+    private IOrdersRepositoryWrapper orderHelpers;
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
+    @Autowired
+    private IBooksRepositoryWrapper booksRepositoryWrapper;
 
-        if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            System.out.println("It's librarian " + currentUser);
-            model.addAttribute("level","librarian");
-            orders = ordersRepository.findAll();
-        } else {
-            System.out.println("It's user " + currentUser);
-            model.addAttribute("level","user");
-            orders = ordersRepository.findByUser(user);
-        }
+    @Autowired
+    private IUserHelpers userHelpers;
 
+    @GetMapping("/orderslist")
+    public String openOrdersListPage(Model model) {
+        Users user = userHelpers.getCurrentUser();
+        List<Orders> orders = orderHelpers.getOrdersForUser(user);
+
+        modelHelpers.addUserToModel(model, user);
         model.addAttribute("orders", orders);
         return "orderslist.html";
     }
 
     @GetMapping("/addneworder")
-    public String orderList(Model model) {
-
-
-        model.addAttribute("users", usersRepository.findAll());
-        model.addAttribute("books", booksRepository.findAll());
-        model.addAttribute("statusFinished", OrderStatus.FINISHED);
-        model.addAttribute("available", Availability.AVAILABLE);
+    public String openNewOrderPage(Model model) {
+        model.addAttribute("users", usersRepositoryWrapper.getAllUsers());
+        model.addAttribute("books", booksRepositoryWrapper.getAllBooks());
         return "addneworder.html";
     }
 
-    @RequestMapping("/addthisneworder")
-    public String addOrder(
-            @RequestParam(value = "userParam") String userID,
-            @RequestParam(value = "issueDate") String issueDate,
-            @RequestParam(value = "orderInfo") String orderInfo,
-            @RequestParam(value = "bookIds") List<String> list) throws ParseException {
-
-
-        Orders order = new Orders();
-        order.setUser(usersRepository.getById(Integer.parseInt(userID)));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.ENGLISH);
-        issueDate = issueDate.replace('T',' ');
-        order.setIssueDate(formatter.parse(issueDate));
-        List<Books> booksList = new ArrayList<>();
-        for (String s:list) {
-            Optional<Books> booksOptional = booksRepository.findById(Integer.parseInt(s));
-            Books book = booksOptional.get();
-            book.setAvailability(Availability.RESERVED);
-            booksList.add(book);
-        }
-        order.setBooksList(booksList);
-
-        if (orderInfo.equals("reserved")){
-            order.setOrderInfo(OrderStatus.RESERVED);
-        } else if (orderInfo.equals("inprogress")){
-            order.setOrderInfo(OrderStatus.INPROGRESS);
-        }
-        else{
-            order.setOrderInfo(OrderStatus.FINISHED);
-        }
-        ordersRepository.save(order);
-        return "redirect:/orderslist";
+    @PostMapping("/addthisneworder")
+    public String addNewOrder(
+            @RequestParam(value = "userId") String userID,
+            @RequestParam(value = "issueDate") String orderCreatedDate,
+            @RequestParam(value = "orderInfo") String orderStatus,
+            @RequestParam(value = "bookIds") List<String> selectedBookIds) {
+        orderHelpers.createAndSaveOrder(userID, orderCreatedDate, orderStatus, selectedBookIds);
+        return booksListRedirect;
     }
 
     @GetMapping("/vieworder/{orderID}")
-    public String infoOneOrder(Model model, @PathVariable int orderID) {
+    public String openOrderInformationPage(Model model, @PathVariable int orderID) {
         Orders order = ordersRepository.getById(orderID);
+        Users user = userHelpers.getCurrentUser();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
-
-        if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            System.out.println("It's librarian " + currentUser);
-            model.addAttribute("level","librarian");
-        } else {
-            System.out.println("It's user " + currentUser);
-            model.addAttribute("level","user");
-        }
-
-
+        modelHelpers.addUserToModel(model, user);
         model.addAttribute("order", order);
         return "infooneorder.html";
     }
 
     @GetMapping("/vieworder/edit/{orderID}")
-    public String editOrder(Model model, @PathVariable int orderID) {
-        Orders order = ordersRepository.getById(orderID);
-        String books = order.getBooksList().get(0).getTitle();
-        order.getBooksList().remove(0);
-        for(Books book : order.getBooksList()){
-            books = books + "\n" + book.getTitle();
-        }
-//        System.out.println(books);
-        EditOrderForm form = new EditOrderForm(order, books);
+    public String openEditOrderPage(Model model, @PathVariable int orderID) {
+        EditOrderForm form = modelHelpers.createEditOrderForm(orderID);
         model.addAttribute("editOrderForm", form);
         return "editorder.html";
     }
 
     @PostMapping("/editthisorder")
-    public String editThisOrder(@Valid Orders order, Model model) {
+    public String editOrder(@Valid Orders order) {
         ordersRepository.save(order);
-        order = ordersRepository.getById(order.getOrderID());
-        model.addAttribute("order", order);
-        return "redirect:/orderslist";
+        return booksListRedirect;
     }
 
-    @GetMapping("/vieworder/finish/{orderID}")
-    public String finishOrder(Model model, @PathVariable int orderID) {
-        Orders order = ordersRepository.getById(orderID);
-        order.setReturnDate(new Date());
-        for (Books book: order.getBooksList()) {
-            book.setAvailability(Availability.AVAILABLE);
-        }
-        order.setOrderInfo(OrderStatus.FINISHED);
-        ordersRepository.save(order);
-
-        model.addAttribute("orders", ordersRepository.findAll());
-
-        return "redirect:/orderslist";
+    @PostMapping("/vieworder/finish/{orderID}")
+    public String finishOrder(@PathVariable int orderID) {
+        orderHelpers.finishOrder(orderID);
+        return booksListRedirect;
     }
 
     @GetMapping("/vieworder/delete/{orderID}")
     public String deleteOrder(@PathVariable int orderID) {
-        System.out.println("Trying to delete this order: " + orderID);
         ordersRepository.deleteById(orderID);
-        return "redirect:/orderslist";
+        return booksListRedirect;
     }
 }
