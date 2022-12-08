@@ -1,6 +1,8 @@
 package com.libraryproject.librarysystem.controllers;
 
 import com.libraryproject.librarysystem.domain.*;
+import com.libraryproject.librarysystem.domain.DTO.OrdersDTO;
+import com.libraryproject.librarysystem.domain.factories.interfaces.IOrdersFactory;
 import com.libraryproject.librarysystem.repositories.repositoryWrappers.interfaces.IBooksRepositoryWrapper;
 import com.libraryproject.librarysystem.utilities.interfaces.IModelHelpers;
 import com.libraryproject.librarysystem.repositories.repositoryWrappers.interfaces.IOrdersRepositoryWrapper;
@@ -38,6 +40,9 @@ public class OrdersControllers {
 
     @Autowired
     private IUserHelpers userHelpers;
+
+    @Autowired
+    private IOrdersFactory ordersFactory;
 
     @GetMapping("/orderslist")
     public String openOrdersListPage(Model model) {
@@ -84,7 +89,8 @@ public class OrdersControllers {
     }
 
     @PostMapping("/editthisorder")
-    public String editOrder(@Valid Orders order) {
+    public String editThisOrder(@Valid OrdersDTO ordersDTO, Model model) {
+        Orders order = ordersFactory.createFromDTO(ordersDTO);
         ordersRepository.save(order);
         return booksListRedirect;
     }

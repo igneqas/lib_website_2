@@ -8,6 +8,8 @@ import com.libraryproject.librarysystem.thymeleafTypes.ReportDates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -29,13 +31,13 @@ public class ReportController {
     @Autowired
     private OrdersRepository ordersRepository;
 
-    @RequestMapping("/generateReport")
+    @GetMapping("/generateReport")
     public String generateReport(Model model) {
         model.addAttribute("reportDates", new ReportDates());
         return "generateReport.html";
     }
 
-    @RequestMapping("/generateReportFull")
+    @PostMapping("/generateReportFull")
     public String generateReportFull(Model model, @RequestParam String fromDate, String toDate) throws ParseException {
         if(fromDate == null || toDate == null) {
             model.addAttribute("errorMessage", "Missing fromDate or toDate.");

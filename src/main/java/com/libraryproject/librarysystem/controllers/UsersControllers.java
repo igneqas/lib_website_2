@@ -1,11 +1,14 @@
 package com.libraryproject.librarysystem.controllers;
 
 import com.libraryproject.librarysystem.domain.*;
+import com.libraryproject.librarysystem.domain.DTO.UsersDTO;
+import com.libraryproject.librarysystem.domain.factories.interfaces.IUsersFactory;
 import com.libraryproject.librarysystem.repositories.UsersRepository;
 import com.libraryproject.librarysystem.security.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,9 @@ public class UsersControllers {
     @Autowired
     private UsersRepository usersRepository;
 
+    @Autowired
+    private IUsersFactory usersFactory;
+
     @GetMapping("/signup")
     public String userSignup(Model model) {
         Users user = new Users();
@@ -30,16 +36,16 @@ public class UsersControllers {
     }
 
     @PostMapping("/signupnewuser")
-    public String addUser(@Valid Users user, RedirectAttributes redirectAttributes) {
+    public String addUser(@Valid UsersDTO usersDTO, RedirectAttributes redirectAttributes) {
+        Users user = usersFactory.create(usersDTO);
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setAccessLevel(AccessLevel.CLIENT);
         redirectAttributes.addFlashAttribute("message", "Succesfully signed up");
         usersRepository.save(user);
         return "redirect:/login";
     }
 
-
-//    Controllers below are for CLIENT use.
-//    Functionality: View profile. Edit profile(username, full name, email, phone).
     @GetMapping("/viewuserprofile")
     public String viewUserProfile(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,18 +67,15 @@ public class UsersControllers {
     }
 
     @PostMapping("/editthisuserprofile")
-    public String editThisUserProfile(@Valid Users user, Model model) {
+    public String editThisUserProfile(@Valid UsersDTO usersDTO, Model model) {
+        Users user = usersFactory.create(usersDTO);
         usersRepository.save(user);
         user = usersRepository.getById(user.getUserID());
         model.addAttribute("user", user);
         return "redirect:/viewuserprofile";
     }
 
-
-
-//    Controllers below are for LIBRARIAN use.
-//    Added functionality: View users list. Edit access level. Delete users.
-    @RequestMapping("/userslist")
+    @GetMapping("/userslist")
     public String allUsers(Model model) {
         List<Users> users = usersRepository.findAll();
 
@@ -98,7 +101,8 @@ public class UsersControllers {
     }
 
     @PostMapping("/editthisuser")
-    public String editThisUser(@Valid Users user, Model model) {
+    public String editThisUser(@Valid UsersDTO usersDTO, Model model) {
+        Users user = usersFactory.create(usersDTO);
         usersRepository.save(user);
         user = usersRepository.getById(user.getUserID());
         model.addAttribute("user", user);

@@ -1,7 +1,7 @@
 package com.libraryproject.librarysystem.repositories.repositoryWrappers;
 
 import com.libraryproject.librarysystem.domain.*;
-import com.libraryproject.librarysystem.domain.factories.interfaces.IOrderFactory;
+import com.libraryproject.librarysystem.domain.factories.interfaces.IOrdersFactory;
 import com.libraryproject.librarysystem.repositories.repositoryWrappers.interfaces.IOrdersRepositoryWrapper;
 import com.libraryproject.librarysystem.repositories.OrdersRepository;
 import com.libraryproject.librarysystem.utilities.interfaces.IUserHelpers;
@@ -20,14 +20,14 @@ public class OrdersRepositoryWrapper implements IOrdersRepositoryWrapper {
     private OrdersRepository ordersRepository;
 
     @Autowired
-    private IOrderFactory orderFactory;
+    private IOrdersFactory ordersFactory;
 
     public List<Orders> getOrdersForUser(Users user) {
         return userHelpers.isUserLibrarian(user) ? ordersRepository.findAll() : ordersRepository.findByUser(user);
     }
 
     public void createAndSaveOrder(String userId, String orderCreatedDate, String orderStatus, List<String> selectedBookIds) {
-        Orders order = orderFactory.createOrder(userId, orderCreatedDate, orderStatus, selectedBookIds);
+        Orders order = ordersFactory.createOrder(userId, orderCreatedDate, orderStatus, selectedBookIds);
         ordersRepository.save(order);
     }
 

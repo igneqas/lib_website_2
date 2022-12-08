@@ -3,7 +3,9 @@ package com.libraryproject.librarysystem.controllers;
 
 import com.libraryproject.librarysystem.domain.AccessLevel;
 import com.libraryproject.librarysystem.domain.Authors;
+import com.libraryproject.librarysystem.domain.DTO.AuthorsDTO;
 import com.libraryproject.librarysystem.domain.Users;
+import com.libraryproject.librarysystem.domain.factories.interfaces.IAuthorsFactory;
 import com.libraryproject.librarysystem.repositories.AuthorsRepository;
 import com.libraryproject.librarysystem.repositories.UsersRepository;
 import com.libraryproject.librarysystem.security.MyUserDetails;
@@ -25,7 +27,11 @@ public class AuthorsControllers {
     @Autowired
     private UsersRepository usersRepository;
 
-    @RequestMapping("/authorslist")
+    @Autowired
+    private IAuthorsFactory authorsFactory;
+
+
+    @GetMapping("/authorslist")
     public String allAuthors(Model model) {
         List<Authors> authors = authorsRepository.findAll();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -74,14 +80,15 @@ public class AuthorsControllers {
     }
 
     @GetMapping("/viewauthor/edit/{id}")
-    public String editAuthor(Model model,@PathVariable int id) {
+    public String editAuthor(Model model, @PathVariable int id) {
         Authors authors = authorsRepository.getById(id);
         model.addAttribute("author", authors);
         return "editauthor.html";
     }
 
     @PostMapping("/editthisauthor")
-    public String editThisAuthor(@Valid Authors author, Model model) {
+    public String editThisAuthor(@Valid AuthorsDTO authorsDTO, Model model) {
+        Authors author = authorsFactory.create(authorsDTO);
         authorsRepository.save(author);
         author = authorsRepository.getById(author.getAuthorID());
         model.addAttribute("author", author);
