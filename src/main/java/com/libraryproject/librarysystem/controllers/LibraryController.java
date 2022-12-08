@@ -1,6 +1,5 @@
 package com.libraryproject.librarysystem.controllers;
 
-
 import com.libraryproject.librarysystem.domain.*;
 import com.libraryproject.librarysystem.repositories.BooksRepository;
 import com.libraryproject.librarysystem.repositories.OrdersRepository;
@@ -14,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
@@ -34,6 +32,8 @@ public class LibraryController {
     @Autowired
     private OrdersRepository ordersRepository;
 
+    private final String accessAttributeName = "level";
+
     @GetMapping("/login")
     public String home() {
         return "login.html";
@@ -45,9 +45,9 @@ public class LibraryController {
         MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
         Users user = usersRepository.getById(currentUser.getUserID());
         if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            model.addAttribute("level","librarian");
+            model.addAttribute(accessAttributeName,"librarian");
         } else {
-            model.addAttribute("level","user");
+            model.addAttribute(accessAttributeName,"user");
         }
         return "dashboard.html";
     }
@@ -60,11 +60,9 @@ public class LibraryController {
 
         List<Books> books;
         if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            System.out.println("It's librarian " + currentUser);
-            model.addAttribute("level","librarian");
+            model.addAttribute(accessAttributeName,"librarian");
         } else {
-            System.out.println("It's user " + currentUser);
-            model.addAttribute("level","user");
+            model.addAttribute(accessAttributeName,"user");
         }
 
         if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
@@ -72,8 +70,6 @@ public class LibraryController {
         } else {
             books = booksRepository.findByAvailability(Availability.AVAILABLE);
         }
-
-//        books = booksRepository.findAll();
 
         model.addAttribute("books", books);
         model.addAttribute("available", Availability.AVAILABLE);
@@ -89,7 +85,7 @@ public class LibraryController {
             return "redirect:/";
         }
 
-        String[] booksSelected = map.get("bookIds").toString().replaceAll("\\[","").replaceAll("\\]","").split(",");
+        String[] booksSelected = map.get("bookIds").toString().replace("\\[","").replace("\\]","").split(",");
         ArrayList<Books> list = new ArrayList<>();
 
         for (String number : booksSelected) {
@@ -102,10 +98,8 @@ public class LibraryController {
     }
 
     @PostMapping("/library/confirmreservationend")
-    public String confirmreservationend(@RequestParam MultiValueMap<String, Integer> map, Model model) {
-
-        System.out.println("Ended reservation");
-        String[] booksSelected = map.get("bookIds").toString().replaceAll("\\[","").replaceAll("\\]","").split(",");
+    public String confirmreservationend(@RequestParam MultiValueMap<String, Integer> map) {
+        String[] booksSelected = map.get("bookIds").toString().replace("\\[","").replace("\\]","").split(",");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
@@ -115,10 +109,8 @@ public class LibraryController {
 
         for (String number:booksSelected) {
             Integer bookId = Integer.parseInt(number.trim());
-            System.out.println("Id of book: " + bookId);
             Optional<Books> bookOp = booksRepository.findById(bookId);
-            Books book = (Books) bookOp.get();
-            System.out.println("Book: " + book);
+            Books book = bookOp.orElseGet(Books::new);
             book.setAvailability(Availability.RESERVED);
             listOfBooks.add(book);
         }

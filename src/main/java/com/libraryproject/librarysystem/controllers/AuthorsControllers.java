@@ -30,6 +30,9 @@ public class AuthorsControllers {
     @Autowired
     private IAuthorsFactory authorsFactory;
 
+    private final String accessAttributeName = "level";
+    private final String authorAttributeName = "author";
+    private final String authorsListRedirect = "redirect:/authorslist";
 
     @GetMapping("/authorslist")
     public String allAuthors(Model model) {
@@ -39,11 +42,9 @@ public class AuthorsControllers {
         Users user = usersRepository.getById(currentUser.getUserID());
 
         if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-//            System.out.println("It's librarian " + currentUser);
-            model.addAttribute("level","librarian");
+            model.addAttribute(accessAttributeName,"librarian");
         } else {
-//            System.out.println("It's user " + currentUser);
-            model.addAttribute("level","user");
+            model.addAttribute(accessAttributeName,"user");
         }
         model.addAttribute("authors", authors);
         return "authorlist.html";
@@ -52,7 +53,7 @@ public class AuthorsControllers {
     @GetMapping("/addnewauthor")
     public String authorList(Model model) {
         Authors author = new Authors();
-        model.addAttribute("author", author);
+        model.addAttribute(authorAttributeName, author);
         return "addnewauthor.html";
     }
 
@@ -60,7 +61,7 @@ public class AuthorsControllers {
     public String addAuthor(@RequestParam String authorName, String authorCountry) {
         Authors author = new Authors(authorName, authorCountry);
         authorsRepository.save(author);
-        return "redirect:/authorslist";
+        return authorsListRedirect;
     }
 
     @GetMapping("/viewauthor/{authorID}")
@@ -71,18 +72,18 @@ public class AuthorsControllers {
         Users user = usersRepository.getById(currentUser.getUserID());
 
         if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            model.addAttribute("level","librarian");
+            model.addAttribute(accessAttributeName,"librarian");
         } else {
-            model.addAttribute("level","user");
+            model.addAttribute(accessAttributeName,"user");
         }
-        model.addAttribute("author", author);
+        model.addAttribute(authorAttributeName, author);
         return "infooneauthor.html";
     }
 
     @GetMapping("/viewauthor/edit/{id}")
     public String editAuthor(Model model, @PathVariable int id) {
         Authors authors = authorsRepository.getById(id);
-        model.addAttribute("author", authors);
+        model.addAttribute(authorAttributeName, authors);
         return "editauthor.html";
     }
 
@@ -91,16 +92,15 @@ public class AuthorsControllers {
         Authors author = authorsFactory.create(authorsDTO);
         authorsRepository.save(author);
         author = authorsRepository.getById(author.getAuthorID());
-        model.addAttribute("author", author);
-        return "redirect:/authorslist";
+        model.addAttribute(authorAttributeName, author);
+        return authorsListRedirect;
     }
 
     @GetMapping("/viewauthor/delete/{id}")
     public String deleteAuthor(@PathVariable int id, Model model) {
-//        System.out.println("Trying to delete this author: " + id );
         authorsRepository.deleteById(id);
         List<Authors> authors = authorsRepository.findAll();
         model.addAttribute("authors", authorsRepository.findAll());
-        return "redirect:/authorslist";
+        return authorsListRedirect;
     }
 }
