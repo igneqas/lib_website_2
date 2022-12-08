@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -38,7 +39,7 @@ public class LibraryController {
         return "login.html";
     }
 
-    @RequestMapping("/")
+    @GetMapping("/")
     public String dashboard(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
@@ -51,7 +52,7 @@ public class LibraryController {
         return "dashboard.html";
     }
 
-    @RequestMapping("/bookslist")
+    @GetMapping("/bookslist")
     public String bookListUser(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
@@ -79,7 +80,7 @@ public class LibraryController {
         return "booklistuser.html";
     }
 
-    @RequestMapping("/library/confirmreservation")
+    @PostMapping("/library/confirmreservation")
     public String startReservation(@RequestParam MultiValueMap<String, Integer> map, Model model) {
 
         if(map.isEmpty()){
@@ -100,7 +101,7 @@ public class LibraryController {
         return "/confirmreservation.html";
     }
 
-    @RequestMapping("/library/confirmreservationend")
+    @PostMapping("/library/confirmreservationend")
     public String confirmreservationend(@RequestParam MultiValueMap<String, Integer> map, Model model) {
 
         System.out.println("Ended reservation");

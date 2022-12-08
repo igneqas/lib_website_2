@@ -1,6 +1,8 @@
 package com.libraryproject.librarysystem.controllers;
 
 import com.libraryproject.librarysystem.domain.*;
+import com.libraryproject.librarysystem.domain.DTO.BooksDTO;
+import com.libraryproject.librarysystem.domain.factories.interfaces.IBooksFactory;
 import com.libraryproject.librarysystem.repositories.AuthorsRepository;
 import com.libraryproject.librarysystem.repositories.BooksRepository;
 import com.libraryproject.librarysystem.repositories.UsersRepository;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
 
-
 @Controller
 public class BooksControllers {
 
@@ -27,6 +28,10 @@ public class BooksControllers {
 
     @Autowired
     private AuthorsRepository authorsRepository;
+
+    @Autowired
+    private IBooksFactory booksFactory;
+
 
     @GetMapping("/addnewbook")
     public String bookList(Model model) {
@@ -140,16 +145,14 @@ public class BooksControllers {
     @GetMapping("/viewbook/edit/{id}")
     public String editBook(Model model,@PathVariable int id) {
         Books book = booksRepository.getById(id);
-
-//        System.out.println(book.getId() + " | " + book.getAvailability() + " | " + book.getTitle() + " | " + book.getUrl());
         model.addAttribute("book", book);
         return "editbook.html";
     }
 
     @PostMapping("/editthisbook")
-    public String editThisBook(@Valid Books book, Model model) {
+    public String editThisBook(@Valid BooksDTO booksDTO, Model model) {
+        Books book = booksFactory.create(booksDTO);
         booksRepository.save(book);
-        System.out.println("This is the id of the book from html: " + book.getId());
         book = booksRepository.getById(book.getId());
         model.addAttribute("book", book);
         return "redirect:/bookslist";

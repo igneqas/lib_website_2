@@ -1,10 +1,11 @@
 package com.libraryproject.librarysystem.domain.factories;
 
 import com.libraryproject.librarysystem.domain.Books;
+import com.libraryproject.librarysystem.domain.DTO.OrdersDTO;
 import com.libraryproject.librarysystem.domain.OrderStatus;
 import com.libraryproject.librarysystem.domain.Orders;
 import com.libraryproject.librarysystem.domain.Users;
-import com.libraryproject.librarysystem.domain.factories.interfaces.IOrderFactory;
+import com.libraryproject.librarysystem.domain.factories.interfaces.IOrdersFactory;
 import com.libraryproject.librarysystem.repositories.UsersRepository;
 import com.libraryproject.librarysystem.repositories.repositoryWrappers.BooksRepositoryWrapper;
 import com.libraryproject.librarysystem.utilities.DateFormatter;
@@ -15,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class OrderFactory implements IOrderFactory {
+public class OrdersFactory implements IOrdersFactory {
 
     @Autowired
     UsersRepository usersRepository;
@@ -42,5 +43,14 @@ public class OrderFactory implements IOrderFactory {
         } else {
             return OrderStatus.FINISHED;
         }
+    }
+    @Override
+    public Orders createFromDTO(OrdersDTO ordersDTO) {
+        return new Orders(ordersDTO.getOrderID(),
+                ordersDTO.getUser(),
+                ordersDTO.getBooksList(),
+                ordersDTO.getIssueDate(),
+                ordersDTO.getReturnDate(),
+                ordersDTO.getOrderInfo());
     }
 }

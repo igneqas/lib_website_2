@@ -15,6 +15,12 @@ public class Authors {
     @ManyToMany
     private List<Books> booksList;
 
+    public Authors(int authorID, String authorName, String authorCountry, List<Books> booksList) {
+        this.authorID = authorID;
+        this.authorName = authorName;
+        this.authorCountry = authorCountry;
+        this.booksList = booksList;
+    }
 
     public Authors(int authorID, String authorName, String authorCountry) {
         this.authorID = authorID;
