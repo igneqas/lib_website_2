@@ -121,7 +121,7 @@ public class LibraryController {
             book.setAvailability(Availability.RESERVED);
             listOfBooks.add(book);
         }
-        Orders order = new Orders(user, listOfBooks,new Date(), OrderStatus.RESERVED);
+        Orders order = new Orders(user, new Date(), listOfBooks, OrderStatus.RESERVED);
         ordersRepository.save(order);
 
         return "/confirmreservationend.html";

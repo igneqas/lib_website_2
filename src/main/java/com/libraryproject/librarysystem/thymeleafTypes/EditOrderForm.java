@@ -1,4 +1,4 @@
-package com.libraryproject.librarysystem.thymeleafHelpers;
+package com.libraryproject.librarysystem.thymeleafTypes;
 
 import com.libraryproject.librarysystem.domain.Orders;
 

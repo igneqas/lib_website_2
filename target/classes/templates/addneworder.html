@@ -13,7 +13,7 @@
         <form th:action="@{/addthisneworder}">
             <label for="user">Write ID of the client:</label>
             <br>
-            <select id="user" th:name="userParam">
+            <select id="user" th:name="userId">
                 <option th:each="user :${users}" th:value="${user.userID}"
                         th:text="${user.userID} + ' ' + ${user.userFullName}"></option>
             </select>
@@ -22,9 +22,6 @@
             <br>
             <input th:type="datetime-local" id="issueDate" th:name="issueDate" required>
             <br>
-            <!--            <label for="returnDate">Write date of return:</label>-->
-            <!--            <br>-->
-            <!--            <input type="date" id="returnDate" th:value="${order.returnDate}" th:field="*{returnDate}" required minlength="1">-->
             <br>
             <label for="orderInfo">Add order status:</label>
             <br>
@@ -50,7 +47,7 @@
                     <td style="text-align:center" th:text="${book.title}">book title</td>
                     <td style="text-align:center" th:text="${book.availability}">book status</td>
                     <td style="text-align:center">
-                        <span th:if="${book.availability == available}">
+                        <span th:if="${book.availability.name() == 'AVAILABLE'}">
                             <input type="checkbox" style="width: 16px; height: 16px" th:name="bookIds" th:value="${book.id}"/>
                         </span>
                     </td>
