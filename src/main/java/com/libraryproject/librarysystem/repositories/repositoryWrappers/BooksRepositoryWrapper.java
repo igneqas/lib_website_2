@@ -27,7 +27,7 @@ public class BooksRepositoryWrapper implements IBooksRepositoryWrapper {
 
     private Books getReservedBook(String bookId) {
         Optional<Books> booksOptional = getBook(Integer.parseInt(bookId));
-        Books book = booksOptional.get();
+        Books book = booksOptional.orElseGet(Books::new);
         book.setAvailability(Availability.RESERVED);
         return book;
     }
