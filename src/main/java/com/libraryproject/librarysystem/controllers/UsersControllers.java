@@ -5,6 +5,7 @@ import com.libraryproject.librarysystem.domain.DTO.UsersDTO;
 import com.libraryproject.librarysystem.domain.factories.interfaces.IUsersFactory;
 import com.libraryproject.librarysystem.repositories.UsersRepository;
 import com.libraryproject.librarysystem.security.MyUserDetails;
+import com.libraryproject.librarysystem.utilities.interfaces.IUserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,9 @@ public class UsersControllers {
     @Autowired
     private IUsersFactory usersFactory;
 
+    @Autowired
+    private IUserHelpers userHelpers;
+
     @GetMapping("/signup")
     public String userSignup(Model model) {
         Users user = new Users();
@@ -48,20 +52,14 @@ public class UsersControllers {
 
     @GetMapping("/viewuserprofile")
     public String viewUserProfile(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
+        Users user = userHelpers.getCurrentUser();
         model.addAttribute("user", user);
         return "infooneuser.html";
     }
 
     @GetMapping("/viewuserprofile/edit")
     public String editProfile(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
-        System.out.println(user.getUserName() + " | " + user.getUserFullName() + " | "
-                + user.getEmail() + " | " + user.getPhone());
+        Users user = userHelpers.getCurrentUser();
         model.addAttribute("user", user);
         return "edituserprofile.html";
     }
@@ -93,9 +91,6 @@ public class UsersControllers {
     @GetMapping("/viewuser/edit/{id}")
     public String editUser(Model model,@PathVariable int id) {
         Users user = usersRepository.getById(id);
-
-        System.out.println(user.getUserName() + " | " + user.getUserFullName() + " | "
-                + user.getEmail() + " | " + user.getPhone() + " | " + user.getAccessLevel());
         model.addAttribute("user", user);
         return "edituser.html";
     }

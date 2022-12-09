@@ -3,11 +3,9 @@ package com.libraryproject.librarysystem.controllers;
 import com.libraryproject.librarysystem.domain.*;
 import com.libraryproject.librarysystem.repositories.BooksRepository;
 import com.libraryproject.librarysystem.repositories.OrdersRepository;
-import com.libraryproject.librarysystem.repositories.UsersRepository;
-import com.libraryproject.librarysystem.security.MyUserDetails;
+import com.libraryproject.librarysystem.utilities.interfaces.IModelHelpers;
+import com.libraryproject.librarysystem.utilities.interfaces.IUserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
@@ -27,10 +25,13 @@ public class LibraryController {
     private BooksRepository booksRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private IUserHelpers userHelpers;
 
     @Autowired
     private OrdersRepository ordersRepository;
+
+    @Autowired
+    private IModelHelpers modelHelpers;
 
     private final String accessAttributeName = "level";
 
@@ -41,29 +42,17 @@ public class LibraryController {
 
     @GetMapping("/")
     public String dashboard(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
-        if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            model.addAttribute(accessAttributeName,"librarian");
-        } else {
-            model.addAttribute(accessAttributeName,"user");
-        }
+        Users user = userHelpers.getCurrentUser();
+        modelHelpers.addUserToModel(model, user);
         return "dashboard.html";
     }
 
     @GetMapping("/bookslist")
     public String bookListUser(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
+        Users user = userHelpers.getCurrentUser();
 
         List<Books> books;
-        if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            model.addAttribute(accessAttributeName,"librarian");
-        } else {
-            model.addAttribute(accessAttributeName,"user");
-        }
+        modelHelpers.addUserToModel(model, user);
 
         if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
             books = booksRepository.findAll();
@@ -100,11 +89,7 @@ public class LibraryController {
     @PostMapping("/library/confirmreservationend")
     public String confirmreservationend(@RequestParam MultiValueMap<String, Integer> map) {
         String[] booksSelected = map.get("bookIds").toString().replace("\\[","").replace("\\]","").split(",");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
-
+        Users user = userHelpers.getCurrentUser();
         List<Books> listOfBooks = new ArrayList<>();
 
         for (String number:booksSelected) {

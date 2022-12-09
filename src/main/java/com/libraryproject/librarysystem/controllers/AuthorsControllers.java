@@ -7,11 +7,9 @@ import com.libraryproject.librarysystem.domain.DTO.AuthorsDTO;
 import com.libraryproject.librarysystem.domain.Users;
 import com.libraryproject.librarysystem.domain.factories.interfaces.IAuthorsFactory;
 import com.libraryproject.librarysystem.repositories.AuthorsRepository;
-import com.libraryproject.librarysystem.repositories.UsersRepository;
-import com.libraryproject.librarysystem.security.MyUserDetails;
+import com.libraryproject.librarysystem.utilities.interfaces.IModelHelpers;
+import com.libraryproject.librarysystem.utilities.interfaces.IUserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +23,13 @@ public class AuthorsControllers {
     private AuthorsRepository authorsRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private IUserHelpers userHelpers;
 
     @Autowired
     private IAuthorsFactory authorsFactory;
+
+    @Autowired
+    private IModelHelpers modelHelpers;
 
     private final String accessAttributeName = "level";
     private final String authorAttributeName = "author";
@@ -37,15 +38,8 @@ public class AuthorsControllers {
     @GetMapping("/authorslist")
     public String allAuthors(Model model) {
         List<Authors> authors = authorsRepository.findAll();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
-
-        if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            model.addAttribute(accessAttributeName,"librarian");
-        } else {
-            model.addAttribute(accessAttributeName,"user");
-        }
+        Users user = userHelpers.getCurrentUser();
+        modelHelpers.addUserToModel(model, user);
         model.addAttribute("authors", authors);
         return "authorlist.html";
     }
@@ -67,15 +61,8 @@ public class AuthorsControllers {
     @GetMapping("/viewauthor/{authorID}")
     public String infoOneAuthor(Model model, @PathVariable int authorID) {
         Authors author = authorsRepository.getById(authorID);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
-
-        if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            model.addAttribute(accessAttributeName,"librarian");
-        } else {
-            model.addAttribute(accessAttributeName,"user");
-        }
+        Users user = userHelpers.getCurrentUser();
+        modelHelpers.addUserToModel(model, user);
         model.addAttribute(authorAttributeName, author);
         return "infooneauthor.html";
     }
