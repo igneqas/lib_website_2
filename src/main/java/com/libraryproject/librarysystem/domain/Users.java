@@ -118,6 +118,10 @@ public class Users {
 
     public void setEmail(String email) {this.email = email;}
 
+    public List<Orders> getMyOrders() {
+        return myOrders;
+    }
+
     @Override
     public String toString() {
         return "Users{" +

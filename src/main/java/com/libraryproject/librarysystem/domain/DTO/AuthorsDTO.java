@@ -10,6 +10,13 @@ public class AuthorsDTO {
     private String authorCountry;
     private List<Books> booksList;
 
+    public AuthorsDTO(int authorID, String authorName, String authorCountry, List<Books> booksList) {
+        this.authorID = authorID;
+        this.authorName = authorName;
+        this.authorCountry = authorCountry;
+        this.booksList = booksList;
+    }
+
     public int getAuthorID() {
         return authorID;
     }

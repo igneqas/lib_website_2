@@ -15,6 +15,15 @@ public class OrdersDTO {
     private Date returnDate;
     private OrderStatus orderInfo;
 
+    public OrdersDTO(int orderID, Users user, List<Books> booksList, Date issueDate, Date returnDate, OrderStatus orderInfo) {
+        this.orderID = orderID;
+        this.user = user;
+        this.booksList = booksList;
+        this.issueDate = issueDate;
+        this.returnDate = returnDate;
+        this.orderInfo = orderInfo;
+    }
+
     public int getOrderID() {
         return orderID;
     }
