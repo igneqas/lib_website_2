@@ -47,7 +47,6 @@ public class BooksControllers {
         return "addnewbook.html";
     }
 
-
     @GetMapping("/addthisnewbook")
     public String addBook(Model model, @RequestParam(value = "title") String title,
                           @RequestParam(value = "url") String url,
@@ -57,20 +56,20 @@ public class BooksControllers {
                           @RequestParam(value = "releaseYear") String releaseYear,
                           @RequestParam(value = "description") String description) {
         if(title.length()<1 || title.length()>100) {
-            model.addAttribute("errorMessage", "The book title should be at least 1 symbol and no more than 100 symbols long.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "The book title should be at least 1 symbol and no more than 100 symbols long.");
+            return errorPage;
         }
 
         try {
             Genre.valueOf(genre);
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "The book record should have a genre, that is defined in the system.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "The book record should have a genre, that is defined in the system.");
+            return errorPage;
         }
 
         if(isbn.length() < 10 || isbn.length() > 18 || !(isbn.matches("[0123456789-]+"))) {
-            model.addAttribute("errorMessage", "The book's ISBN code should be between 10 and 18 symbols and be made up of numbers and dashes.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "The book's ISBN code should be between 10 and 18 symbols and be made up of numbers and dashes.");
+            return errorPage;
         }
 
         try {
@@ -78,29 +77,29 @@ public class BooksControllers {
             if(temporaryValue < 1 )
                 throw new Exception();
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "The book's year of release should be a positive integer.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "The book's year of release should be a positive integer.");
+            return errorPage;
         }
 
         if(Integer.parseInt(releaseYear) > Calendar.getInstance().get(Calendar.YEAR)) {
-            model.addAttribute("errorMessage", "The book's year of release shouldn't greater than the current year.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "The book's year of release shouldn't greater than the current year.");
+            return errorPage;
         }
 
         if(description.length() > 500) {
-            model.addAttribute("errorMessage", "The book's description should not be longer than 500 characters.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "The book's description should not be longer than 500 characters.");
+            return errorPage;
         }
 
         Optional<Authors> authorObject = authorsRepository.findById(Integer.parseInt(authorID.trim()));
         if(authorObject.isEmpty()) {
-            model.addAttribute("errorMessage", "The chosen author does not exist in the database.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "The chosen author does not exist in the database.");
+            return errorPage;
         }
 
         if(booksRepository.findAll().stream().filter(b -> Objects.equals(b.getIsbn(), isbn)).findFirst().orElse(null) != null){
-            model.addAttribute("errorMessage", "Book with this ISBN already exists. Record not created.");
-            return "error.html";
+            model.addAttribute(errorMessageAttributeName, "Book with this ISBN already exists. Record not created.");
+            return errorPage;
         }
 
         Books book = new Books(title, Genre.valueOf(genre), isbn, releaseYear, description, url);
@@ -114,7 +113,7 @@ public class BooksControllers {
         book.setAvailability(Availability.AVAILABLE);
         Books savedBook = booksRepository.save(book);
 
-        return "redirect:/bookslist";
+        return booksListRedirect;
     }
 
     @GetMapping("/viewbook/{id}")
@@ -145,7 +144,7 @@ public class BooksControllers {
         booksRepository.save(book);
         book = booksRepository.getById(book.getId());
         model.addAttribute("book", book);
-        return "redirect:/bookslist";
+        return booksListRedirect;
     }
 
 }

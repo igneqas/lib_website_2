@@ -1,6 +1,5 @@
 package com.libraryproject.librarysystem.controllers;
 
-
 import com.libraryproject.librarysystem.domain.*;
 import com.libraryproject.librarysystem.repositories.BooksRepository;
 import com.libraryproject.librarysystem.repositories.OrdersRepository;
@@ -12,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
@@ -62,8 +60,6 @@ public class LibraryController {
             books = booksRepository.findByAvailability(Availability.AVAILABLE);
         }
 
-//        books = booksRepository.findAll();
-
         model.addAttribute("books", books);
         model.addAttribute("available", Availability.AVAILABLE);
         return "booklistuser.html";
@@ -78,7 +74,7 @@ public class LibraryController {
             return "redirect:/";
         }
 
-        String[] booksSelected = map.get("bookIds").toString().replaceAll("\\[","").replaceAll("\\]","").split(",");
+        String[] booksSelected = map.get("bookIds").toString().replace("\\[","").replace("\\]","").split(",");
         ArrayList<Books> list = new ArrayList<>();
 
         for (String number : booksSelected) {
@@ -94,15 +90,12 @@ public class LibraryController {
     public String confirmreservationend(@RequestParam MultiValueMap<String, Integer> map) {
         String[] booksSelected = map.get("bookIds").toString().replace("\\[","").replace("\\]","").split(",");
         Users user = userHelpers.getCurrentUser();
-
         List<Books> listOfBooks = new ArrayList<>();
 
         for (String number:booksSelected) {
             Integer bookId = Integer.parseInt(number.trim());
-            System.out.println("Id of book: " + bookId);
             Optional<Books> bookOp = booksRepository.findById(bookId);
-            Books book = (Books) bookOp.get();
-            System.out.println("Book: " + book);
+            Books book = bookOp.orElseGet(Books::new);
             book.setAvailability(Availability.RESERVED);
             listOfBooks.add(book);
         }
