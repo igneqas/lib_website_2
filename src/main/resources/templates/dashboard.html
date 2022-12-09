@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<header></header>
 <head>
     <meta charset="UTF-8">
     <title>Books list</title>
@@ -15,6 +16,13 @@
     <div style="position: relative; color: white; margin-top: 100px; margin-left: 40%; margin-right: 40%; padding: 10px; padding-bottom: 40px; border: solid white 2px; text-align: center">
         <h2 style="font-size: 40px">DASHBOARD</h2>
         <table style="margin: 0 auto">
+            <thead>
+            <tr>
+                <th style="visibility: hidden">Open books list</th>
+                <th style="visibility: hidden">Open authors list</th>
+                <th style="visibility: hidden">Open orders list</th>
+            </tr>
+            </thead>
             <tbody>
             <tr>
                 <td><button onclick="window.location.href='/bookslist';" style="font-size: 20px">See books list</button></td>
@@ -33,5 +41,6 @@
     <input type="submit" value="Sign Out" style="font-size: 20px"/>
 </form>
 </body>
+<footer></footer>
 </html>
 
