@@ -33,7 +33,7 @@ public class OrdersControllers {
     private IModelHelpers modelHelpers;
 
     @Autowired
-    private IOrdersRepositoryWrapper orderHelpers;
+    private IOrdersRepositoryWrapper ordersRepositoryWrapper;
 
     @Autowired
     private IBooksRepositoryWrapper booksRepositoryWrapper;
@@ -47,7 +47,7 @@ public class OrdersControllers {
     @GetMapping("/orderslist")
     public String openOrdersListPage(Model model) {
         Users user = userHelpers.getCurrentUser();
-        List<Orders> orders = orderHelpers.getOrdersForUser(user);
+        List<Orders> orders = ordersRepositoryWrapper.getOrdersForUser(user);
 
         modelHelpers.addUserToModel(model, user);
         model.addAttribute("orders", orders);
@@ -67,7 +67,7 @@ public class OrdersControllers {
             @RequestParam(value = "issueDate") String orderCreatedDate,
             @RequestParam(value = "orderInfo") String orderStatus,
             @RequestParam(value = "bookIds") List<String> selectedBookIds) {
-        orderHelpers.createAndSaveOrder(userID, orderCreatedDate, orderStatus, selectedBookIds);
+        ordersRepositoryWrapper.createAndSaveOrder(userID, orderCreatedDate, orderStatus, selectedBookIds);
         return booksListRedirect;
     }
 
@@ -89,7 +89,7 @@ public class OrdersControllers {
     }
 
     @PostMapping("/editthisorder")
-    public String editThisOrder(@Valid OrdersDTO ordersDTO, Model model) {
+    public String editThisOrder(@Valid OrdersDTO ordersDTO) {
         Orders order = ordersFactory.createFromDTO(ordersDTO);
         ordersRepository.save(order);
         return booksListRedirect;
@@ -97,7 +97,7 @@ public class OrdersControllers {
 
     @PostMapping("/vieworder/finish/{orderID}")
     public String finishOrder(@PathVariable int orderID) {
-        orderHelpers.finishOrder(orderID);
+        ordersRepositoryWrapper.finishOrder(orderID);
         return booksListRedirect;
     }
 

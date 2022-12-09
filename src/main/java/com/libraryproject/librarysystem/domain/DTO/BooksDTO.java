@@ -19,6 +19,19 @@ public class BooksDTO {
     private Availability availability;
     private List<Orders> bookOrders;
 
+    public BooksDTO(int id, String title, List<Authors> authorsList, Genre genre, String isbn, String releaseYear, String description, String url, Availability availability, List<Orders> bookOrders) {
+        this.id = id;
+        this.title = title;
+        this.authorsList = authorsList;
+        this.genre = genre;
+        this.isbn = isbn;
+        this.releaseYear = releaseYear;
+        this.description = description;
+        this.url = url;
+        this.availability = availability;
+        this.bookOrders = bookOrders;
+    }
+
     public int getId() {
         return id;
     }
