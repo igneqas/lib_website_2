@@ -5,11 +5,9 @@ import com.libraryproject.librarysystem.domain.DTO.BooksDTO;
 import com.libraryproject.librarysystem.domain.factories.interfaces.IBooksFactory;
 import com.libraryproject.librarysystem.repositories.AuthorsRepository;
 import com.libraryproject.librarysystem.repositories.BooksRepository;
-import com.libraryproject.librarysystem.repositories.UsersRepository;
-import com.libraryproject.librarysystem.security.MyUserDetails;
+import com.libraryproject.librarysystem.utilities.interfaces.IModelHelpers;
+import com.libraryproject.librarysystem.utilities.interfaces.IUserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,7 @@ public class BooksControllers {
     private BooksRepository booksRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private IUserHelpers userHelpers;
 
     @Autowired
     private AuthorsRepository authorsRepository;
@@ -32,6 +30,12 @@ public class BooksControllers {
     @Autowired
     private IBooksFactory booksFactory;
 
+    @Autowired
+    private IModelHelpers modelHelpers;
+
+    private final String errorMessageAttributeName = "errorMessage";
+    private final String errorPage = "error.html";
+    private final String booksListRedirect = "redirect:/bookslist";
 
     @GetMapping("/addnewbook")
     public String bookList(Model model) {
@@ -116,30 +120,16 @@ public class BooksControllers {
     @GetMapping("/viewbook/{id}")
     public String viewOneBook(Model model, @PathVariable int id) {
         Books book = booksRepository.getById(id);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails currentUser = (MyUserDetails) authentication.getPrincipal();
-        Users user = usersRepository.getById(currentUser.getUserID());
-
-        if (user.getAccessLevel() == AccessLevel.LIBRARIAN) {
-            System.out.println("It's librarian " + currentUser);
-            model.addAttribute("level","librarian");
-        } else {
-//            System.out.println("It's user " + currentUser);
-            model.addAttribute("level","user");
-        }
-
-
+        Users user = userHelpers.getCurrentUser();
+        modelHelpers.addUserToModel(model, user);
         model.addAttribute("book", book);
         return "infoonebook.html";
     }
 
     @GetMapping("/viewbook/delete/{id}")
     public String deleteBook(@PathVariable int id) {
-//        System.out.println("Trying to delete this book: " + id );
         booksRepository.deleteById(id);
-
-        return "redirect:/bookslist";
+        return booksListRedirect;
     }
 
     @GetMapping("/viewbook/edit/{id}")
